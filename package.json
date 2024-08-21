@@ -1,0 +1,54 @@
+{
+  "scripts": {
+    "build": "build-figma-plugin --typecheck --minify",
+    "watch": "build-figma-plugin --typecheck --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ishida-daiki/github-discussions-templete"
+  },
+  "homepage": "https://github.com/ishida-daiki/github-discussions-templete/blob/main/README.md",
+  "author": "ishida-daiki",
+  "license": "MIT",
+  "dependencies": {
+    "@create-figma-plugin/ui": "^3.2.0",
+    "@create-figma-plugin/utilities": "^3.2.0",
+    "dotenv": "^16.4.5",
+    "preact": ">=10"
+  },
+  "devDependencies": {
+    "@create-figma-plugin/build": "^3.2.0",
+    "@create-figma-plugin/tsconfig": "^3.2.0",
+    "@figma/plugin-typings": "1.90.0",
+    "@types/node": "^22.0.0",
+    "typescript": ">=4"
+  },
+  "figma-plugin": {
+    "editorType": [
+      "figma",
+      "dev",
+      "figjam"
+    ],
+    "id": "Discussions Templete",
+    "name": "Discussions Templete",
+    "main": "src/main.ts",
+    "ui": "src/app/App.tsx",
+    "api": "1.0.0",
+    "enablePrivatePluginApi": true,
+    "capabilities": [
+      "inspect",
+      "vscode"
+    ],
+    "enableProposedApi": false,
+    "documentAccess": "dynamic-page",
+    "permissions": [
+      "currentuser"
+    ],
+    "networkAccess": {
+      "allowedDomains": [
+        "https://api.github.com/graphql",
+        "https://api.github.com"
+      ]
+    }
+  }
+}

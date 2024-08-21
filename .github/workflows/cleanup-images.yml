@@ -1,0 +1,67 @@
+# このワークフローは、指定したスケジュールまたは手動トリガーで実行されます。
+# 特に以下の処理を行います：
+#  1. リポジトリのチェックアウト。
+#  2. Node.jsのセットアップと依存関係のインストール。
+#  3. 画像ディレクトリの内容を削除するスクリプトに実行権限を付与。
+#  4. スクリプトの実行。
+#  5. 変更があれば、これをコミットしてリポジトリにプッシュ。
+
+
+# 画像ディレクトリ内容を削除するための GitHub Actionsワークフロー（ishida-daiki/github-discussions-templeteリポジトリのみ）
+name: Cleanup Images Action
+
+# ワークフローのトリガー設定
+on:
+  # 毎日午前0時に実行する
+  schedule:
+    - cron: "0 0 * * *"
+
+  # 手動トリガーで実行する
+  workflow_dispatch: 
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Give execute permission for delete-images-content.sh
+        run: chmod +x ./scripts/delete-images-content.sh
+
+      - name: Delete contents of images
+        if: github.repository == 'ishida-daiki/github-discussions-templete'
+        run: ./scripts/delete-images-content.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for changes
+        if: github.repository == 'ishida-daiki/github-discussions-templete'
+        id: check_changes
+        run: |
+          git add images
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            echo "changes=false" >> $GITHUB_ENV
+          else
+            echo "Changes detected"
+            echo "changes=true" >> $GITHUB_ENV
+          fi
+
+      - name: Commit and push changes
+        if: env.changes == 'true' && github.repository == 'ishida-daiki/github-discussions-templete'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Delete contents of images directory via GitHub Actions'
+          git push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
